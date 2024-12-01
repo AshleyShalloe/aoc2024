@@ -1,0 +1,82 @@
+html {
+    font-family: monospace;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+body {
+    background: #0f0f23;
+    color: #cccccc;
+    font-family: "Source Code Pro", monospace;
+    font-weight: 300;
+    font-size: 14pt;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+    margin: 20px;
+    text-align: center;
+}
+
+input {
+    font-family: "Source Code Pro", monospace;
+    font-weight: 300;
+    font-size: 14pt;
+    text-align: center;
+    background: #10101a;
+    color: white;
+    border: 1px solid #333340;
+}
+
+textarea {
+    font-family: "Source Code Pro", monospace;
+    font-weight: 300;
+    font-size: 14pt;
+    width: 100%;
+    height: 100px;
+    background: #10101a;
+    color: white;
+    border: 1px solid #333340;
+}
+
+button {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding: 10px;
+    background: #10101a;
+    color: white;
+    border: 1px solid #333340;
+    font-family: "Source Code Pro", monospace;
+    font-weight: 300;
+    font-size: 14pt;
+    transition: filter 0.2s;
+}
+
+button:hover {
+    filter: brightness(1.5);
+}
+
+a {
+    text-decoration: none;
+    color: #009900;
+}
+
+a:hover,
+a:focus {
+    color: #99ff99;
+}
+
+li {
+    list-style-type: none;
+    padding: 0 0.6em;
+}
+
+ul {
+    padding: 0;
+    margin: 0;
+}
+
+#homeLink a {
+    padding: 0 0.6em;
+}

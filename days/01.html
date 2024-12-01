@@ -4,12 +4,10 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8" />
-    <title>Day 01 - AOC 2024</title>
-    <style>
-        html {
-            font-family: Arial, sans-serif;
-        }
-    </style>
+    <link rel="stylesheet" href="../res/main.css">
+    <script type="text/javascript" src="../res/main.js"></script>
+    <title>Advent of Code // Day 1</title>
+    <link rel="icon" href="../favicon.png" />
 </head>
 
 <body>
@@ -17,12 +15,12 @@
     <h2>Puzzle input</h2>
     <textarea id="puzzleInput"></textarea>
     <br><button onclick="solve()">Solve</button>
-    
+
     <h2>Part 1 Result</h2>
-    <textarea id="result0"></textarea>
+    <input id="result0"></input>
 
     <h2>Part 2 Result</h2>
-    <textarea id="result1"></textarea>
+    <input id="result1"></input>
 
 </body>
 <script>
@@ -85,13 +83,19 @@
         result1Elm.value = calculateSimilarityScore(...parsedInput)
     }
 
+    function clearInputAndResults(){
+        inputElm.value = ""
+        result0Elm.value = ""
+        result1Elm.value = ""
+    }
+
     // globals
     const inputElm = document.getElementById("puzzleInput")
     const result0Elm = document.getElementById("result0")
     const result1Elm = document.getElementById("result1")
 
-    function init(){
-        // nothing
+    function init() {
+        clearInputAndResults();
     }
 
     init();
