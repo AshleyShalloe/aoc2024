@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <title>Day 01 - AOC 2024</title>
+    <style>
+        html {
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Puzzle input</h2>
+    <textarea id="puzzleInput"></textarea>
+    <br><button onclick="solve()">Solve</button>
+    
+    <h2>Part 1 Result</h2>
+    <textarea id="result0"></textarea>
+
+    <h2>Part 2 Result</h2>
+    <textarea id="result1"></textarea>
+
+</body>
+<script>
+    'use strict'
+
+    function Counter(array) {
+        // https://stackoverflow.com/a/44189621
+        array.forEach(val => this[val] = (this[val] || 0) + 1);
+    }
+
+    function parseInput(inputStr) {
+        var returnArray0 = []
+        var returnArray1 = []
+
+        inputStr.split("\n").forEach(x => {
+            var [a, b] = x.split("   ")
+            returnArray0.push(parseInt(a))
+            returnArray1.push(parseInt(b))
+        })
+
+        return [returnArray0, returnArray1]
+    }
+
+    function sortAndCompareDistances(inputArray0, inputArray1) {
+        var sortedArray0 = inputArray0.sort((a, b) => a - b)
+        var sortedArray1 = inputArray1.sort((a, b) => a - b)
+
+        var distancesArray = sortedArray0.map((x, i) =>
+            Math.abs(x - sortedArray1[i])
+        )
+
+        var distancesArraySum = distancesArray.reduce((a, b) => a + b)
+
+        return distancesArraySum
+    }
+
+    function calculateSimilarityScore(inputArray0, inputArray1) {
+        var uniqueLeftListNumbers = new Set(inputArray0.sort((a, b) => a - b))
+        var sortedArray1 = inputArray1.sort((a, b) => a - b)
+
+        var sortedArray1Counter = new Counter(sortedArray1)
+        var leftValToProductMap = new Map()
+
+        uniqueLeftListNumbers.forEach(x => {
+            leftValToProductMap.set(x, sortedArray1Counter[x] ? sortedArray1Counter[x] * x : 0)
+        })
+
+        var returnSum = 0
+
+        inputArray0.forEach(x => {
+            returnSum += leftValToProductMap.get(x)
+        })
+
+        return returnSum
+    }
+
+    function solve() {
+        var parsedInput = parseInput(inputElm.value.trim())
+        result0Elm.value = sortAndCompareDistances(...parsedInput)
+        result1Elm.value = calculateSimilarityScore(...parsedInput)
+    }
+
+    // globals
+    const inputElm = document.getElementById("puzzleInput")
+    const result0Elm = document.getElementById("result0")
+    const result1Elm = document.getElementById("result1")
+
+    function init(){
+        // nothing
+    }
+
+    init();
+</script>
+
+</html>
