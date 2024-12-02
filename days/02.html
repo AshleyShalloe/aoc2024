@@ -35,29 +35,53 @@
         return inputStr.split("\n").map(x => x.split(" ").map(y => parseInt(y)))
     }
 
-    function solvePart1(inputArray){
-        var mapArray = inputArray.map(x =>
-            x.map((y,i) => y - x[i+1]).slice(0, -1)
-        )
+    function checkSubArray(inputArray) {
+        var mapArray = inputArray.map((x, i) => x - inputArray[i + 1]).slice(0, -1)
 
         // check no deltas exceed +/- 3 or are 0
-        mapArray = mapArray.map(x => x.some(y => (Math.abs(y) > 3) || !y) ? false : x)
+        // true if failed
+        var deltaCheck = mapArray.some(y => (Math.abs(y) > 3) || !y)
+
+        if (deltaCheck) {
+            return false
+        }
 
         // check all same sign
-        mapArray = mapArray.map(x => 
-            x
-            ? x.map(y => y > 0).every(y => y == true) || x.map(y => y > 0).every(y => y == false)
-            : false
-        )
+        // true if passed
+        var signCheck = mapArray.map(y => y > 0).every(y => y == true) || mapArray.map(y => y > 0).every(y => y == false)
 
-        return mapArray
+        return signCheck
+    }
+
+    function solvePart1(inputArray) {
+        return inputArray.map(x => checkSubArray(x))
+    }
+
+    function solvePart2(inputArray) {
+        var passCount = 0
+
+        inputArray.forEach((x, j) => {
+            if (checkSubArray(x)) {
+                passCount++
+            }
+            else {
+                for (var i = 0; i < x.length; i++) {
+                    if (checkSubArray(x.toSpliced(i, 1))) {
+                        passCount++
+                        i = x.length
+                    }
+                }
+            }
+        })
+
+        return passCount
     }
 
 
     function solve() {
         var parsedInput = parseInput(inputElm.value.trim())
         result0Elm.value = solvePart1(parsedInput).filter(x => x).length
-        //result1Elm.value = solvePart2(parsedInput)
+        result1Elm.value = solvePart2(parsedInput)
     }
 
     function clearInputAndResults() {
