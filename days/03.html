@@ -27,22 +27,45 @@
     'use strict'
 
     function parseInput(inputStr) {
-        return inputStr
+        return inputStr // that was easy...
     }
 
-    function mul(x,y){
-        return x*y
+    function mul(x, y) {
+        // tell me you aren't going to run eval()
+        return x * y
     }
 
 
     function solvePart1(inputStr) {
         const re = /mul\([0-9]*\,[0-9]*\)/g
         var matches = inputStr.match(re)
-        return matches.map(x => eval(x)).reduce((a,b) => a+b) // never do this
+        return matches.map(x => eval(x)).reduce((a, b) => a + b) // never do this
     }
 
-    function solvePart2(inputArray) {
-        
+    function solvePart2(inputStr) {
+        var doOrDont = true
+        var splitStringArray = inputStr.split(/(do\(\))|(don\'t\(\))/g).filter(x => x)
+        var resultArray = []
+        const re = /mul\([0-9]*\,[0-9]*\)/g
+
+        splitStringArray.forEach(x => {
+            if (x == "do()") {
+                doOrDont = true
+            }
+            else if (x == "don't()") {
+                doOrDont = false
+            }
+            if (doOrDont && x) {
+                try {
+                    resultArray.push(x.match(re).map(y => eval(y)).reduce((a, b) => a + b)) // never do this twice
+                }
+                catch {
+                    // pass
+                }
+            }
+        })
+
+        return resultArray.reduce((a, b) => a + b)
     }
 
 
