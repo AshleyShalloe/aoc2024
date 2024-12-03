@@ -31,6 +31,11 @@ function generateStarField(numberOfStars) {
     }
 }
 
+function Counter(array) {
+    // https://stackoverflow.com/a/44189621
+    array.forEach((val) => (this[val] = (this[val] || 0) + 1));
+}
+
 function addHomeLink() {
     var homeLink = document.createElement("div");
     homeLink.id = "homeLink";

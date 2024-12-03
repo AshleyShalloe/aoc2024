@@ -17,19 +17,14 @@
     <br><button onclick="solve()">Solve</button>
 
     <h2>Part 1 Result</h2>
-    <input id="result0"></input>
+    <input id="result0" />
 
     <h2>Part 2 Result</h2>
-    <input id="result1"></input>
+    <input id="result1" />
 
 </body>
 <script>
     'use strict'
-
-    function Counter(array) {
-        // https://stackoverflow.com/a/44189621
-        array.forEach(val => this[val] = (this[val] || 0) + 1);
-    }
 
     function parseInput(inputStr) {
         return inputStr.split("\n").map(x => x.split(" ").map(y => parseInt(y)))
