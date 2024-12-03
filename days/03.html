@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="../res/main.css">
+    <script type="text/javascript" src="../res/main.js"></script>
+    <title>Advent of Code // Day 3</title>
+    <link rel="icon" href="../favicon.png" />
+</head>
+
+<body>
+
+    <h2>Puzzle input</h2>
+    <textarea id="puzzleInput"></textarea>
+    <br><button onclick="solve()">Solve</button>
+
+    <h2>Part 1 Result</h2>
+    <input id="result0" />
+
+    <h2>Part 2 Result</h2>
+    <input id="result1" />
+
+</body>
+<script>
+    'use strict'
+
+    function parseInput(inputStr) {
+        return inputStr
+    }
+
+    function mul(x,y){
+        return x*y
+    }
+
+
+    function solvePart1(inputStr) {
+        const re = /mul\([0-9]*\,[0-9]*\)/g
+        var matches = inputStr.match(re)
+        return matches.map(x => eval(x)).reduce((a,b) => a+b) // never do this
+    }
+
+    function solvePart2(inputArray) {
+        
+    }
+
+
+    function solve() {
+        var parsedInput = parseInput(inputElm.value.trim())
+        result0Elm.value = solvePart1(parsedInput)
+        result1Elm.value = solvePart2(parsedInput)
+    }
+
+    function clearInputAndResults() {
+        inputElm.value = ""
+        result0Elm.value = ""
+        result1Elm.value = ""
+    }
+
+    // globals
+    const inputElm = document.getElementById("puzzleInput")
+    const result0Elm = document.getElementById("result0")
+    const result1Elm = document.getElementById("result1")
+
+    function init() {
+        // clearInputAndResults();
+    }
+
+    init();
+</script>
+
+</html>
