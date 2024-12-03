@@ -56,12 +56,7 @@
                 doOrDont = false
             }
             if (doOrDont && x) {
-                try {
-                    resultArray.push(x.match(re).map(y => eval(y)).reduce((a, b) => a + b)) // never do this twice
-                }
-                catch {
-                    // pass
-                }
+                resultArray.push((x.match(re) || []).map(y => eval(y)).reduce((a, b) => a + b, 0)) // never do this twice
             }
         })
 
