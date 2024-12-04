@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="../res/main.css">
+    <script type="text/javascript" src="../res/main.js"></script>
+    <title>Advent of Code // Day 4</title>
+    <link rel="icon" href="../favicon.png" />
+</head>
+
+<body>
+
+    <h2>Puzzle input</h2>
+    <textarea id="puzzleInput"></textarea>
+    <br><button onclick="solve()">Solve</button>
+
+    <h2>Part 1 Result</h2>
+    <input id="result0" />
+
+    <h2>Part 2 Result</h2>
+    <input id="result1" />
+
+</body>
+<script>
+    'use strict'
+
+    function parseInput(inputStr) {
+        return inputStr.split("\n")
+    }
+
+    function rotateListOfLists(input) {
+        var returnList = []
+        var inputWidth = input[0].length
+        var inputHeight = input.length
+
+        for (var i = 0; i < inputWidth; i++) {
+            var tempCol = []
+
+            for (var j = 0; j < inputHeight; j++) {
+                tempCol.push(input[j][i])
+            }
+            returnList.push(tempCol)
+        }
+        return returnList
+    }
+
+    function rotateListOfStrings(inputList){
+        return rotateListOfLists(inputList.map(x => x.split(""))).map(x => x.join(""))
+    }
+
+    function diagonalListOfLists(inputArray){
+        var returnArray = inputArray.map((x,i) => [...Array(i).fill("a"), ...x, ...Array(inputArray.length - i).fill("a")])
+
+        return returnArray
+    }
+
+    function diagonalListOfStrings(inputList){
+        return diagonalListOfLists(inputList.map(x => x.split(""))).map(x => x.join(""))
+    }
+
+    function countLeftRightXmasOccurences(inputArray){
+        return inputArray.map(x => 
+            (x.match(/XMAS/g) || []).length
+            + (x.match(/SAMX/g) || []).length
+        ).reduce((a,b) => a+b, 0)
+    }
+
+    function solvePart1(inputArray) {
+        // calculate forward and reverse
+        // x-axis
+        var LRCount = countLeftRightXmasOccurences(inputArray)
+
+        // y-axis
+        var TBCount = countLeftRightXmasOccurences(rotateListOfStrings(inputArray))
+
+        // diagonal one way
+        var diagonalCount1 = countLeftRightXmasOccurences(rotateListOfStrings(diagonalListOfStrings(inputArray)))
+
+        // diagonal other way
+        var diagonalCount2 = countLeftRightXmasOccurences(rotateListOfStrings(diagonalListOfStrings(inputArray.reverse())))
+
+        return [LRCount, TBCount, diagonalCount1, diagonalCount2].reduce((a,b) => a+b, 0)
+    }
+
+    function solvePart2(inputArray) {
+        
+    }
+
+    function solve() {
+        var parsedInput = parseInput(inputElm.value.trim())
+        result0Elm.value = solvePart1(parsedInput)
+        result1Elm.value = solvePart2(parsedInput)
+    }
+
+    function clearInputAndResults() {
+        inputElm.value = ""
+        result0Elm.value = ""
+        result1Elm.value = ""
+    }
+
+    // globals
+    const inputElm = document.getElementById("puzzleInput")
+    const result0Elm = document.getElementById("result0")
+    const result1Elm = document.getElementById("result1")
+
+    function init() {
+        // clearInputAndResults();
+    }
+
+    init();
+</script>
+
+</html>
