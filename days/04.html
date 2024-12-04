@@ -46,25 +46,25 @@
         return returnList
     }
 
-    function rotateListOfStrings(inputList){
+    function rotateListOfStrings(inputList) {
         return rotateListOfLists(inputList.map(x => x.split(""))).map(x => x.join(""))
     }
 
-    function diagonalListOfLists(inputArray){
-        var returnArray = inputArray.map((x,i) => [...Array(i).fill("a"), ...x, ...Array(inputArray.length - i).fill("a")])
+    function diagonalListOfLists(inputArray) {
+        var returnArray = inputArray.map((x, i) => [...Array(i).fill("a"), ...x, ...Array(inputArray.length - i).fill("a")])
 
         return returnArray
     }
 
-    function diagonalListOfStrings(inputList){
+    function diagonalListOfStrings(inputList) {
         return diagonalListOfLists(inputList.map(x => x.split(""))).map(x => x.join(""))
     }
 
-    function countLeftRightXmasOccurences(inputArray){
-        return inputArray.map(x => 
+    function countLeftRightXmasOccurences(inputArray) {
+        return inputArray.map(x =>
             (x.match(/XMAS/g) || []).length
             + (x.match(/SAMX/g) || []).length
-        ).reduce((a,b) => a+b, 0)
+        ).reduce((a, b) => a + b, 0)
     }
 
     function solvePart1(inputArray) {
@@ -81,7 +81,7 @@
         // diagonal other way
         var diagonalCount2 = countLeftRightXmasOccurences(rotateListOfStrings(diagonalListOfStrings(inputArray.reverse())))
 
-        return [LRCount, TBCount, diagonalCount1, diagonalCount2].reduce((a,b) => a+b, 0)
+        return [LRCount, TBCount, diagonalCount1, diagonalCount2].reduce((a, b) => a + b, 0)
     }
 
     function solvePart2(inputArray) {
@@ -90,14 +90,14 @@
         var masCount = 0
 
         // scan the grid
-        for (var y=0; y<height-2; y++){
-            for (var x=0; x<width-2; x++){
+        for (var y = 0; y < height - 2; y++) {
+            for (var x = 0; x < width - 2; x++) {
                 // calculate co-ords
-                var x0 = [x,y] // NW
-                var x1 = [x+2,y] // NE
-                var x2 = [x+1, y+1] // centre
-                var x3 = [x, y+2] // SW
-                var x4 = [x+2, y+2] // SE
+                var x0 = [x, y] // NW
+                var x1 = [x + 2, y] // NE
+                var x2 = [x + 1, y + 1] // centre
+                var x3 = [x, y + 2] // SW
+                var x4 = [x + 2, y + 2] // SE
 
                 // replace with values
                 x0 = inputArray[x0[0]].split("")[x0[1]]
@@ -111,8 +111,8 @@
                 var diag2 = [x3, x2, x1].join("")
 
                 // check
-                if (diag1 == "MAS" || diag1 == "SAM"){
-                    if (diag2 == "MAS" || diag2 == "SAM"){
+                if (diag1 == "MAS" || diag1 == "SAM") {
+                    if (diag2 == "MAS" || diag2 == "SAM") {
                         masCount++
                     }
                 }
