@@ -85,7 +85,41 @@
     }
 
     function solvePart2(inputArray) {
-        
+        var height = inputArray.length
+        var width = inputArray[0].length
+        var masCount = 0
+
+        // scan the grid
+        for (var y=0; y<height-2; y++){
+            for (var x=0; x<width-2; x++){
+                // calculate co-ords
+                var x0 = [x,y] // NW
+                var x1 = [x+2,y] // NE
+                var x2 = [x+1, y+1] // centre
+                var x3 = [x, y+2] // SW
+                var x4 = [x+2, y+2] // SE
+
+                // replace with values
+                x0 = inputArray[x0[0]].split("")[x0[1]]
+                x1 = inputArray[x1[0]].split("")[x1[1]]
+                x2 = inputArray[x2[0]].split("")[x2[1]]
+                x3 = inputArray[x3[0]].split("")[x3[1]]
+                x4 = inputArray[x4[0]].split("")[x4[1]]
+
+                // build diagonals
+                var diag1 = [x0, x2, x4].join("")
+                var diag2 = [x3, x2, x1].join("")
+
+                // check
+                if (diag1 == "MAS" || diag1 == "SAM"){
+                    if (diag2 == "MAS" || diag2 == "SAM"){
+                        masCount++
+                    }
+                }
+            }
+        }
+
+        return masCount
     }
 
     function solve() {
