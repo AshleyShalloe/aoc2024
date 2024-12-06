@@ -315,7 +315,7 @@
             var lazy = new Set()
 
             // have we done it already?
-            if (newBlockageArray.has([blockageX, blockageY].join(","))){
+            if (newBlockageArray.has([blockageX, blockageY].join(","))) {
                 isValidXY = false
             }
 
@@ -347,7 +347,14 @@
         var parsedInput = parseInput(inputElm.value.trim())
 
         result0Elm.value = await solvePart1(parsedInput)
-        result1Elm.value = solvePart2(parsedInput)
+        result1Elm.value = "Calculating..."
+
+        // don't block the repaint!
+        function part2wrapper() {
+            result1Elm.value = solvePart2(parsedInput)
+        }
+
+        setTimeout(part2wrapper, 0)
     }
 
     function clearInputAndResults() {
