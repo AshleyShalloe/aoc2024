@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="../res/main.css">
+    <script type="text/javascript" src="../res/main.js"></script>
+    <title>Advent of Code // Day 6</title>
+    <link rel="icon" href="../favicon.png" />
+    <style>
+        #map {
+            margin: 10px;
+            font-size: 6px;
+            line-height: 6px;
+            background: #1f1f40;
+            border: 10px solid #1f1f40;
+        }
+
+        #map,
+        #map tr,
+        #map td {
+            border-collapse: collapse;
+        }
+
+        #map td {
+            color: rgba(255, 255, 255, 0);
+            padding: 0;
+        }
+
+        #map td.currentPos {
+            background: hotpink !important;
+        }
+
+        #map td.visitedN,
+        #map td.visitedS,
+        #map td.visitedE,
+        #map td.visitedW {
+            background: rgba(0, 0, 255, 0);
+            font-weight: bold;
+            color: #80ec80;
+        }
+
+        #map td.blockage {
+            color: white;
+            font-size: 3px;
+            /* border-radius: 100%; */
+        }
+
+        body #map td.newBlockage {
+            background: red !important;
+        }
+
+        button:disabled {
+            color: black;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Puzzle input</h2>
+    <textarea id="puzzleInput"></textarea>
+    <br><button onclick="solve(); this.disabled = true">Solve</button>
+
+    <h2>Part 1 Result</h2>
+    <input id="result0" />
+
+    <h2>Part 2 Result</h2>
+    <input id="result1" />
+
+</body>
+<script>
+    'use strict'
+
+    function parseInput(inputStr) {
+        parsedInput = inputStr.split("\n").map(x => x.split(""))
+
+        return parsedInput
+    }
+
+    function generateTable(inputArray) {
+        // generate table        
+        targetTable = document.createElement("table")
+        targetTable.innerHTML = inputArray.map((row, y) => "<tr>" + row.map((cell, x) => `<td data-coords="${x},${y}">${cell.replace("^", ".")}</td>`).join("") + "</tr>").join("\n")
+        targetTable.id = "map"
+
+        // append table to DOM
+        document.body.append(targetTable)
+
+        // get starting position
+        currentPos = inputArray.map((row, y) => row.map((cell, x) => cell == "^" ? [x, y] : false)).flat().filter(x => x)[0]
+        currentPos = { "x": currentPos[0], "y": currentPos[1] }
+
+        // set globals
+        globalStartPosX = currentPos.x
+        globalStartPosY = currentPos.y
+        globalStartPosDirection = "N"
+
+        // highlight current pos
+        targetTable.rows[currentPos.y].cells[currentPos.x].classList.add("currentPos", "visitedN", "visited", "startingPos")
+
+        cellVisitedIndexRecords.push([visitedIdx, currentPos.x, currentPos.y, currentDirection])
+
+            // add classes to blockages
+            ;[...targetTable.rows].forEach(x => {
+                [...x.cells].forEach(y => {
+                    if (y.innerHTML == "#") {
+                        y.classList.add("blockage")
+                    }
+                })
+            })
+    }
+
+    function addPathsToCells() {
+        [...document.getElementsByClassName("visited")].forEach(x => {
+            var northConnection = x.classList.contains("visitedS") || x.classList.contains("exitedN")
+            var southConnection = x.classList.contains("visitedN") || x.classList.contains("exitedS")
+            var eastConnection = x.classList.contains("visitedW") || x.classList.contains("exitedE")
+            var westConnection = x.classList.contains("visitedE") || x.classList.contains("exitedW")
+
+            if (x.classList.contains("startingPos")) {
+                southConnection = false
+            }
+
+            if (northConnection && southConnection && eastConnection && westConnection) {
+                x.innerHTML = "┼"
+            }
+            else if (northConnection && southConnection && eastConnection) {
+                x.innerHTML = "├"
+            }
+            else if (northConnection && southConnection && westConnection) {
+                x.innerHTML = "┤"
+            }
+            else if (northConnection && westConnection && eastConnection) {
+                x.innerHTML = "┴"
+            }
+            else if (southConnection && westConnection && eastConnection) {
+                x.innerHTML = "┬"
+            }
+            else if (northConnection && southConnection) {
+                x.innerHTML = "│"
+            }
+            else if (westConnection && eastConnection) {
+                x.innerHTML = "─"
+            }
+            else if (northConnection && westConnection) {
+                x.innerHTML = "╯"
+            }
+            else if (northConnection && eastConnection) {
+                x.innerHTML = "╰"
+            }
+            else if (southConnection && westConnection) {
+                x.innerHTML = "╮"
+            }
+            else if (southConnection && eastConnection) {
+                x.innerHTML = "╭"
+            }
+            else {
+                // console.error("unreachable?", x.classList)
+            }
+        });
+
+        [...document.getElementsByClassName("blockage")].forEach(x => {
+            x.innerHTML = "⬤"
+        })
+    }
+
+
+    function moveTo(x, y) {
+        // update current pos
+        currentPos.x = x
+        currentPos.y = y
+
+        // update cell classes
+        document.getElementsByClassName("currentPos")[0].classList.add(`exited${currentDirection}`)
+        document.getElementsByClassName("currentPos")[0].classList.remove("currentPos")
+        document.querySelector(`[data-coords="${x},${y}"]`).classList.add("currentPos", `visited${currentDirection}`, "visited")
+
+        visitedIdx++
+        cellVisitedIndexRecords.push([visitedIdx, x, y, currentDirection])
+    }
+
+    function getNextPosVec(x, y, direction) {
+        var returnX
+        var returnY
+
+        switch (direction) {
+            case "N":
+                returnX = x
+                returnY = y - 1
+                break
+            case "S":
+                returnX = x
+                returnY = y + 1
+                break
+            case "E":
+                returnX = x + 1
+                returnY = y
+                break
+            case "W":
+                returnX = x - 1
+                returnY = y
+                break
+        }
+
+        try {
+            var cellValue = parsedInput[returnY][returnX]
+            if (cellValue == "." || cellValue == "^") {
+                return [returnX, returnY, direction]
+            }
+            if (cellValue == "#") {
+                return getNextPosVec(x, y, rotate90Clockwise[direction])
+            }
+        }
+        catch {
+            return false
+        }
+    }
+
+    function getNextPosVecWithBlockage(x, y, direction, blockageX, blockageY) {
+        var returnX
+        var returnY
+
+        switch (direction) {
+            case "N":
+                returnX = x
+                returnY = y - 1
+                break
+            case "S":
+                returnX = x
+                returnY = y + 1
+                break
+            case "E":
+                returnX = x + 1
+                returnY = y
+                break
+            case "W":
+                returnX = x - 1
+                returnY = y
+                break
+        }
+
+        // special case for special blockage
+        if (returnX == blockageX) {
+            if (returnY == blockageY) {
+                // console.log("hit our obstacle")
+                return getNextPosVecWithBlockage(x, y, rotate90Clockwise[direction], blockageX, blockageY)
+            }
+        }
+
+        try {
+            var cellValue = parsedInput[returnY][returnX]
+            if (cellValue == "." || cellValue == "^") {
+                return [returnX, returnY, direction]
+            }
+            if (cellValue == "#") {
+                return getNextPosVecWithBlockage(x, y, rotate90Clockwise[direction], blockageX, blockageY)
+            }
+        }
+        catch {
+            return false
+        }
+    }
+
+    async function solvePart1(inputArray) {
+        generateTable(inputArray)
+
+        // check if we can move forward
+        var nextPos = getNextPosVec(currentPos.x, currentPos.y, currentDirection)
+        var counter = 0
+        while (nextPos) {
+            counter++
+            if (slowMode && !(counter % 20)) {
+                await sleep(1)
+                addPathsToCells()
+            }
+            currentDirection = nextPos[2] // update direction
+            cellVisitedIndexRecords.push([-1, currentPos.x, currentPos.y, nextPos[2]]) // add current position, but new direction
+            moveTo(nextPos[0], nextPos[1]) // move to next position
+
+            nextPos = getNextPosVec(currentPos.x, currentPos.y, currentDirection)
+        }
+
+        addPathsToCells();
+
+
+        // get total unique visited positions
+        return document.getElementsByClassName("visited").length
+    }
+
+    function addNewBlockageToTable(x, y) {
+        targetTable.rows[y].cells[x].classList.add("newBlockage")
+    }
+
+
+    function solvePart2(inputArray) {
+        // staunchly refusing to build a graph or do anything clever at all
+        var tempVisitedStrSet
+        var newBlockageArray = new Set()
+
+        cellVisitedIndexRecords.forEach(inputRecord => {
+            var startX = inputRecord[1]
+            var startY = inputRecord[2]
+            var startDirection = inputRecord[3]
+
+            // where is that blockage?
+            var blockageX = startDirection == "W" ? startX - 1 : startDirection == "E" ? startX + 1 : startX
+            var blockageY = startDirection == "N" ? startY - 1 : startDirection == "S" ? startY + 1 : startY
+            // is that position valid?
+            var isValidX = (blockageX >= 0) && (blockageX < parsedInput[0].length)
+            var isValidY = (blockageY >= 0) && (blockageY < parsedInput.length)
+            var isValidXY = isValidX && isValidY && (parsedInput[blockageY][blockageX] == ".") // you can't block the start
+
+            var lazy = new Set()
+
+            // have we done it already?
+            if (newBlockageArray.has([blockageX, blockageY].join(","))){
+                isValidXY = false
+            }
+
+            // well if so...
+            if (isValidXY) {
+                tempVisitedStrSet = new Set()
+                // start from the start like a numpty
+                var tempNextPos = getNextPosVecWithBlockage(globalStartPosX, globalStartPosY, globalStartPosDirection, blockageX, blockageY)
+
+                while (tempNextPos) {
+                    tempNextPos = getNextPosVecWithBlockage(tempNextPos[0], tempNextPos[1], tempNextPos[2], blockageX, blockageY)
+                    var tempNextPosStr = JSON.stringify(tempNextPos)
+                    if (tempVisitedStrSet.has(tempNextPosStr)) {
+                        newBlockageArray.add([blockageX, blockageY].join(","))
+                        addNewBlockageToTable(blockageX, blockageY)
+                        break
+                    }
+                    else {
+                        tempVisitedStrSet.add(tempNextPosStr)
+                    }
+                }
+            }
+        })
+
+        return newBlockageArray.size
+    }
+
+    async function solve() {
+        var parsedInput = parseInput(inputElm.value.trim())
+
+        result0Elm.value = await solvePart1(parsedInput)
+        result1Elm.value = solvePart2(parsedInput)
+    }
+
+    function clearInputAndResults() {
+        inputElm.value = ""
+        result0Elm.value = ""
+        result1Elm.value = ""
+    }
+
+    // globals
+    const inputElm = document.getElementById("puzzleInput")
+    const result0Elm = document.getElementById("result0")
+    const result1Elm = document.getElementById("result1")
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    var parsedInput
+    var targetTable
+    var currentPos = { x: undefined, y: undefined }
+    var currentDirection = "N" // we know this
+    var rotate90Clockwise = {
+        "N": "E",
+        "E": "S",
+        "S": "W",
+        "W": "N"
+    }
+    var cellVisitedIndexRecords = [] // idx, x, y, direction
+    var visitedIdx = 0
+    var slowMode = true
+    var globalStartPosX
+    var globalStartPosY
+    var globalStartPosDirection
+
+    function init() {
+        // clearInputAndResults();
+    }
+
+    init();
+</script>
+
+</html>
