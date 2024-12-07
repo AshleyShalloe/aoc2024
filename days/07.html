@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="../res/main.css">
+    <script type="text/javascript" src="../res/main.js"></script>
+    <title>Advent of Code // Day 7</title>
+    <link rel="icon" href="../favicon.png" />
+    <style>
+        html {
+            max-width: 1000px;
+        }
+
+        .tempTable {
+            margin: 10px;
+            font-size: 12px;
+        }
+
+        .tempTable,
+        .tempTable tr,
+        .tempTable th,
+        .tempTable td {
+            border-collapse: collapse;
+            border: 1px solid white;
+        }
+
+        .tempTable th {
+            padding: 5px;
+        }
+
+        .tempTable td.checked {
+            font-weight: bold;
+        }
+
+        .tempTable.fail,
+        .tempTable.fail tr,
+        .tempTable.fail th,
+        .tempTable.fail td {
+            border: 1px solid grey;
+            color: grey;
+            /* display: none; */
+        }
+
+        .tempTable td.totalCell {
+            background: orange;
+        }
+
+        .tempTable td.weGotIt.totalCell {
+            background: green;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Puzzle input</h2>
+    <textarea id="puzzleInput"></textarea>
+    <br><button onclick="solve()">Solve</button>
+
+    <h2>Part 1 Result</h2>
+    <input id="result0" />
+
+    <h2>Part 2 Result</h2>
+    <input id="result1" />
+
+</body>
+<script>
+    'use strict'
+
+    function parseInput(inputStr) {
+        var parsed = inputStr.split("\n").map(x => x.split(": "))
+
+        globalParsedInput = parsed.map(x => ({ "target": parseInt(x[0]), "values": x[1].split(" ").map(y => parseInt(y)) }))
+
+        return globalParsedInput
+    }
+
+    // ×
+
+    function makeGrid(inputNumberArray) {
+        var tempTable = document.createElement("table")
+
+        // create n*n grid
+        tempTable.innerHTML = ("<tr>" + "<td></td>".repeat(inputNumberArray.length) + "</tr>").repeat(inputNumberArray.length)
+
+        // make it classy
+        tempTable.classList.add("tempTable")
+
+        inputNumberArray.forEach((y, i) => {
+            inputNumberArray.forEach((x, j) => {
+                var targetCell = tempTable.rows[i].cells[j]
+                var cellValue = inputNumberArray.slice(i).slice(j).slice(0, 1)[0] || false
+                targetCell.innerHTML = cellValue || ""
+                targetCell.cellValue = cellValue
+                targetCell.x = j
+                targetCell.y = i
+                targetCell.calculatedValues = []
+
+                // if the cell doesn't have a cellValue, the one to the left is a total cell
+                // but only if that one has a cellValue
+                if (j > 0) {
+                    var tempLeftCell = tempTable.rows[i].cells[j - 1]
+                    var isTempLeftCellATotalCell = cellValue ? false : tempLeftCell.cellValue ? true : false
+                    tempLeftCell.isTotalCell = isTempLeftCellATotalCell
+                    if (isTempLeftCellATotalCell) {
+                        tempLeftCell.classList.add("totalCell")
+                    }
+                }
+
+                // if it's row 0 and we're at the last element
+                // that is also a total cell
+                if ((i == 0) && (j == (inputNumberArray.length - 1))) {
+                    targetCell.isTotalCell = true
+                    targetCell.classList.add("totalCell")
+                }
+            })
+        })
+
+        document.body.append(tempTable)
+
+        return {
+            "tableElm": tempTable,
+            "startValue": inputNumberArray[0],
+            "gridLength": inputNumberArray.length
+        }
+    }
+
+    function processGrid(inputElm, targetValue) {
+        for (var row = 0; row < inputElm.gridLength; row++) {
+            for (var cell = 0; cell < inputElm.gridLength; cell++) {
+                var targetCell = inputElm.tableElm.rows[row].cells[cell]
+                // await sleep(1)
+                targetCell.classList.add("checked")
+
+                // skip blank cells
+                if (!inputElm.tableElm.rows[row].cells[cell].cellValue) {
+                    continue
+                }
+
+                if (cell == 0 && row == 0) {
+                    targetCell.calculatedValues.push(targetCell.cellValue)
+                    continue
+                }
+
+                if (cell > 0) {
+                    var leftCell = inputElm.tableElm.rows[row].cells[cell - 1]
+                    var tempCalculatedValues = leftCell.calculatedValues.map(x => x + targetCell.cellValue)
+                    targetCell.calculatedValues.push(...tempCalculatedValues)
+                    targetCell.innerHTML = targetCell.calculatedValues.join(", ")
+                }
+
+                if (row > 0) {
+                    var northCell = inputElm.tableElm.rows[row - 1].cells[cell]
+                    var tempCalculatedValues = northCell.calculatedValues.map(x => x * targetCell.cellValue)
+                    targetCell.calculatedValues.push(...tempCalculatedValues)
+                    targetCell.innerHTML = targetCell.calculatedValues.join(", ")
+                }
+
+                // check the total cell to see if we got it
+                if (targetCell.isTotalCell && targetCell.calculatedValues.includes(targetValue)) {
+                    targetCell.classList.add("weGotIt")
+                    return targetValue
+                }
+
+                // are all the calculated values above the targetValue?
+                // if so we can skip calculations
+            }
+        }
+
+        // nope, we didn't get it
+        inputElm.tableElm.classList.add("fail")
+
+        return false
+    }
+
+    function solvePart1(inputArray) {
+        var passFailArray = inputArray.map(x => processGrid(makeGrid(x.values), x.target))
+        test = passFailArray
+        return passFailArray.filter(x => x).reduce((a, b) => a + b, 0)
+    }
+
+    var test
+
+    function solvePart2(inputArray) { }
+
+    function solve() {
+        var parsedInput = parseInput(inputElm.value.trim())
+        result0Elm.value = solvePart1(parsedInput)
+        result1Elm.value = solvePart2(parsedInput)
+    }
+
+    function clearInputAndResults() {
+        inputElm.value = ""
+        result0Elm.value = ""
+        result1Elm.value = ""
+    }
+
+    // globals
+    const inputElm = document.getElementById("puzzleInput")
+    const result0Elm = document.getElementById("result0")
+    const result1Elm = document.getElementById("result1")
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    var globalParsedInput
+
+    function init() {
+        // clearInputAndResults();
+    }
+
+    init();
+</script>
+
+</html>
