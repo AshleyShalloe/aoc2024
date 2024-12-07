@@ -147,6 +147,7 @@
                 if (cell > 0) {
                     var leftCell = inputElm.tableElm.rows[row].cells[cell - 1]
                     var tempCalculatedValues = leftCell.calculatedValues.map(x => x + targetCell.cellValue)
+                    tempCalculatedValues = tempCalculatedValues.filter(x => x <= targetValue)
                     targetCell.calculatedValues.push(...tempCalculatedValues)
                     targetCell.innerHTML = targetCell.calculatedValues.join(", ")
                 }
@@ -154,6 +155,7 @@
                 if (row > 0) {
                     var northCell = inputElm.tableElm.rows[row - 1].cells[cell]
                     var tempCalculatedValues = northCell.calculatedValues.map(x => x * targetCell.cellValue)
+                    tempCalculatedValues = tempCalculatedValues.filter(x => x <= targetValue)
                     targetCell.calculatedValues.push(...tempCalculatedValues)
                     targetCell.innerHTML = targetCell.calculatedValues.join(", ")
                 }
@@ -175,20 +177,85 @@
         return false
     }
 
+    function processGridWithConcat(inputElm, targetValue) {
+        for (var row = 0; row < inputElm.gridLength; row++) {
+            for (var cell = 0; cell < inputElm.gridLength; cell++) {
+                var targetCell = inputElm.tableElm.rows[row].cells[cell]
+                // await sleep(1)
+                targetCell.classList.add("checked")
+
+                // skip blank cells
+                if (!inputElm.tableElm.rows[row].cells[cell].cellValue) {
+                    continue
+                }
+
+                if (cell == 0 && row == 0) {
+                    targetCell.calculatedValues.push(targetCell.cellValue)
+                    continue
+                }
+
+                if (cell > 0) {
+                    var leftCell = inputElm.tableElm.rows[row].cells[cell - 1]
+                    // addition
+                    var tempCalculatedValues = leftCell.calculatedValues.map(x => x + targetCell.cellValue)
+                    // concatenation
+                    var tempConcatVals = leftCell.calculatedValues.map(x => parseInt(`${x}${targetCell.cellValue}`))
+                    tempCalculatedValues = tempCalculatedValues.concat(tempConcatVals)
+                    tempCalculatedValues = tempCalculatedValues.filter(x => x <= targetValue)
+                    // push it
+                    targetCell.calculatedValues.push(...tempCalculatedValues)
+                    // targetCell.innerHTML = targetCell.calculatedValues.join(", ")
+                }
+
+                if (row > 0) {
+                    var northCell = inputElm.tableElm.rows[row - 1].cells[cell]
+                    // multiplication
+                    var tempCalculatedValues = northCell.calculatedValues.map(x => x * targetCell.cellValue)
+                    // concatenation
+                    var tempConcatVals = northCell.calculatedValues.map(x => parseInt(`${x}${targetCell.cellValue}`))
+                    tempCalculatedValues = tempCalculatedValues.concat(tempConcatVals)
+                    tempCalculatedValues = tempCalculatedValues.filter(x => x <= targetValue)
+                    // push it
+                    targetCell.calculatedValues.push(...tempCalculatedValues)
+                    // targetCell.innerHTML = targetCell.calculatedValues.join(", ")
+                }
+
+                // check the total cell to see if we got it
+                if (targetCell.isTotalCell && targetCell.calculatedValues.includes(targetValue)) {
+                    targetCell.classList.add("weGotIt")
+                    return targetValue
+                }
+
+                // are all the calculated values above the targetValue?
+                // if so we can skip calculations
+            }
+        }
+
+        // nope, we didn't get it
+        inputElm.tableElm.classList.add("fail")
+
+        return false
+    }
+
     function solvePart1(inputArray) {
         var passFailArray = inputArray.map(x => processGrid(makeGrid(x.values), x.target))
-        test = passFailArray
+
+        failedRules = inputArray.filter((x, i) => !passFailArray[i])
+
         return passFailArray.filter(x => x).reduce((a, b) => a + b, 0)
     }
 
-    var test
+    function solvePart2() {
+        var passFailArray = failedRules.map(x => processGridWithConcat(makeGrid(x.values), x.target))
+        var additionalPassCount = passFailArray.filter(x => x).reduce((a, b) => a + b, 0)
 
-    function solvePart2(inputArray) { }
+        return additionalPassCount + parseInt(result0Elm.value)
+    }
 
     function solve() {
         var parsedInput = parseInput(inputElm.value.trim())
         result0Elm.value = solvePart1(parsedInput)
-        result1Elm.value = solvePart2(parsedInput)
+        result1Elm.value = solvePart2()
     }
 
     function clearInputAndResults() {
@@ -203,6 +270,7 @@
     const result1Elm = document.getElementById("result1")
     const sleep = ms => new Promise(r => setTimeout(r, ms));
     var globalParsedInput
+    var failedRules = []
 
     function init() {
         // clearInputAndResults();
