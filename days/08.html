@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="../res/main.css">
+    <script type="text/javascript" src="../res/main.js"></script>
+    <title>Advent of Code // Day 8</title>
+    <link rel="icon" href="../favicon.png" />
+    <style>
+        html {
+            max-width: 1000px;
+        }
+
+        #theGrid {
+            margin: 10px;
+            margin-top: 30px;
+        }
+
+        #theGrid,
+        #theGrid tr,
+        #theGrid td {
+            border-collapse: collapse;
+            border: 1px solid white;
+            font-size: 8px;
+        }
+
+        #theGrid td {
+            width: 1.5em;
+            height: 1.5em;
+            font-weight: bold;
+        }
+
+        #theGrid td.antinode,
+        #theGrid td.antinode.resonantAntinode {
+            background: green;
+        }
+
+        #theGrid td.resonantAntinode {
+            background: blue;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Puzzle input</h2>
+    <textarea id="puzzleInput"></textarea>
+    <br><button onclick="solve()">Solve</button>
+
+    <h2>Part 1 Result</h2>
+    <input id="result0" />
+
+    <h2>Part 2 Result</h2>
+    <input id="result1" />
+
+</body>
+<script>
+    'use strict'
+
+    function parseInput(inputStr) {
+        // array of [nodeName, xCoord, yCoord] arrays
+        globalParsedInput = inputStr.split("\n").map((y, i) => y.split("").map((x, j) => [x, j, i])).flat().filter(x => x[0] != ".")
+
+        inputDimensions["x"] = inputStr.split("\n")[0].length
+        inputDimensions["y"] = inputStr.split("\n").length
+
+        return globalParsedInput
+    }
+
+    function makeGrid() {
+        var tempTable = document.createElement("table")
+
+        // stage the table
+        tempTable.innerHTML = ("<tr>" + "<td></td>".repeat(inputDimensions.x) + "</tr>").repeat(inputDimensions.y)
+        tempTable.id = "theGrid"
+
+        // populate cells
+        globalParsedInput.forEach(x => {
+            tempTable.rows[x[2]].cells[x[1]].innerHTML = x[0]
+        })
+
+        document.body.append(tempTable)
+
+        return tempTable
+    }
+
+    function solvePart1(inputArray) {
+        var uniqueNodeNamesSet = new Set(inputArray.map(x => x[0]))
+        var boundsMinX = 0
+        var boundsMinY = 0
+        var boundsMaxX = inputDimensions.x
+        var boundsMaxY = inputDimensions.y
+        var newAntinodesArray = []
+
+        uniqueNodeNamesSet.forEach(nodeName => {
+            var coordsArray = inputArray.filter(x => x[0] == nodeName).map(x => x.slice(1))
+
+            // cartesian product
+            coordsArray.forEach(coords0 => {
+                coordsArray.forEach(coords1 => {
+                    var x0 = coords0[0]
+                    var y0 = coords0[1]
+                    var x1 = coords1[0]
+                    var y1 = coords1[1]
+
+                    // nodes don't form antinodes with themselves
+                    if (!(x0 == x1 && y0 == y1)) {
+
+                        var distanceY = y1 - y0
+                        var distanceX = x1 - x0
+
+                        var antinodeX0 = x0 - distanceX
+                        var antinodeY0 = y0 - distanceY
+                        var antinodeX1 = x1 + distanceX
+                        var antinodeY1 = y1 + distanceY
+
+                        // antinode [x,y] array
+                        var antiNodeArray = [[antinodeX0, antinodeY0], [antinodeX1, antinodeY1]]
+
+                        // bounds check
+                        antiNodeArray = antiNodeArray.filter(x =>
+                            (x[0] >= boundsMinX)
+                            && (x[1] >= boundsMinY)
+                            && (x[0] < boundsMaxX)
+                            && (x[1] < boundsMaxY)
+                        )
+
+                        if (antiNodeArray.length) {
+                            newAntinodesArray.push(antiNodeArray)
+                        }
+                    }
+                })
+            })
+        })
+
+        // flatten
+        newAntinodesArray = newAntinodesArray.flat()
+
+        // filter to just unique locations
+        var uniqueNewAntinodesSet = new Set(newAntinodesArray.map(x => x.join(",")))
+
+        // make grid
+        var targetTable = makeGrid()
+            // add antinodes to grid
+            ; newAntinodesArray.forEach(x => {
+                targetTable.rows[x[1]].cells[x[0]].classList.add("antinode")
+            })
+
+        return uniqueNewAntinodesSet.size
+    }
+
+    function solvePart2(inputArray) {
+        var uniqueNodeNamesSet = new Set(inputArray.map(x => x[0]))
+        var boundsMinX = 0
+        var boundsMinY = 0
+        var boundsMaxX = inputDimensions.x
+        var boundsMaxY = inputDimensions.y
+        var newAntinodesArray = []
+
+        uniqueNodeNamesSet.forEach(nodeName => {
+            var coordsArray = inputArray.filter(x => x[0] == nodeName).map(x => x.slice(1))
+
+            // add the antenna itself to the array
+            newAntinodesArray.push(coordsArray)
+
+            // cartesian product
+            coordsArray.forEach(coords0 => {
+                coordsArray.forEach(coords1 => {
+                    var x0 = coords0[0]
+                    var y0 = coords0[1]
+                    var x1 = coords1[0]
+                    var y1 = coords1[1]
+
+                    // nodes don't form antinodes with themselves
+                    if (!(x0 == x1 && y0 == y1)) {
+
+                        var distanceY = y1 - y0
+                        var distanceX = x1 - x0
+
+                        // some semi arbitrarily large number
+                        var antiNodeArray0 = Array(inputDimensions.x * 10).fill(0).map((x, i) => i + 1).map(x =>
+                            [x0 - (distanceX * x), y0 - (distanceY * x)]
+                        )
+                        var antiNodeArray1 = Array(inputDimensions.x * 10).fill(0).map((x, i) => i + 1).map(x =>
+                            [x1 + (distanceX * x), y1 + (distanceY * x)]
+                        )
+
+                        var antiNodeArray = antiNodeArray0.concat(antiNodeArray1)
+
+                        // bounds check
+                        antiNodeArray = antiNodeArray.filter(x =>
+                            (x[0] >= boundsMinX)
+                            && (x[1] >= boundsMinY)
+                            && (x[0] < boundsMaxX)
+                            && (x[1] < boundsMaxY)
+                        )
+
+                        if (antiNodeArray.length) {
+                            newAntinodesArray.push(antiNodeArray)
+                        }
+                    }
+                })
+            })
+        })
+
+        // flatten
+        newAntinodesArray = newAntinodesArray.flat()
+
+        // filter to just unique locations
+        var uniqueNewAntinodesSet = new Set(newAntinodesArray.map(x => x.join(",")))
+
+        // make grid
+        var targetTable = document.getElementById("theGrid")
+            // add antinodes to grid
+            ; newAntinodesArray.forEach(x => {
+                targetTable.rows[x[1]].cells[x[0]].classList.add("resonantAntinode")
+            })
+
+        return uniqueNewAntinodesSet.size
+    }
+
+    function solve() {
+        var parsedInput = parseInput(inputElm.value.trim())
+
+        result0Elm.value = solvePart1(parsedInput)
+        result1Elm.value = "Calculating..."
+
+        // don't block the repaint!
+        function part2wrapper() {
+            result1Elm.value = solvePart2(parsedInput)
+        }
+
+        setTimeout(part2wrapper, 0)
+    }
+
+    function clearInputAndResults() {
+
+    }
+
+    // globals
+    const inputElm = document.getElementById("puzzleInput")
+    const result0Elm = document.getElementById("result0")
+    const result1Elm = document.getElementById("result1")
+    var inputDimensions = {}
+    var globalParsedInput
+    var globalParsedInputText
+
+    function init() {
+        // clearInputAndResults();
+    }
+
+    init();
+</script>
+
+</html>
