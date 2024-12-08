@@ -199,7 +199,7 @@
                     // addition
                     var tempCalculatedValues = leftCell.calculatedValues.map(x => x + targetCell.cellValue)
                     // concatenation
-                    var tempConcatVals = leftCell.calculatedValues.map(x => parseInt(`${x}${targetCell.cellValue}`))
+                    var tempConcatVals = leftCell.calculatedValues.map(x => x*(10**(Math.floor(Math.log10(targetCell.cellValue))+1))+targetCell.cellValue)
                     tempCalculatedValues = tempCalculatedValues.concat(tempConcatVals)
                     tempCalculatedValues = tempCalculatedValues.filter(x => x <= targetValue)
                     // push it
@@ -212,7 +212,7 @@
                     // multiplication
                     var tempCalculatedValues = northCell.calculatedValues.map(x => x * targetCell.cellValue)
                     // concatenation
-                    var tempConcatVals = northCell.calculatedValues.map(x => parseInt(`${x}${targetCell.cellValue}`))
+                    var tempConcatVals = northCell.calculatedValues.map(x => x*(10**(Math.floor(Math.log10(targetCell.cellValue))+1))+targetCell.cellValue)
                     tempCalculatedValues = tempCalculatedValues.concat(tempConcatVals)
                     tempCalculatedValues = tempCalculatedValues.filter(x => x <= targetValue)
                     // push it
