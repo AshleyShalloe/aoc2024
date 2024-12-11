@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="../res/main.css">
+    <script type="text/javascript" src="../res/main.js"></script>
+    <title>Advent of Code // Day 9</title>
+    <link rel="icon" href="../favicon.png" />
+</head>
+
+<body>
+
+    <h2>Puzzle input</h2>
+    <textarea id="puzzleInput"></textarea>
+    <br><button onclick="solve()">Solve</button>
+
+    <h2>Part 1 Result</h2>
+    <input id="result0" />
+
+    <h2>Part 2 Result</h2>
+    <input id="result1" />
+
+</body>
+<script>
+    'use strict'
+
+    function parseInput(inputStr) {
+        var returnArray = []
+        var currentId = 0
+
+        inputStr.split("").forEach((x, i) => {
+            if (i % 2) {
+                // free space
+                for (var j = 0; j < parseInt(x); j++) {
+                    returnArray.push(".")
+                }
+            }
+            else {
+                // a file
+                for (var j = 0; j < parseInt(x); j++) {
+                    returnArray.push(currentId)
+                }
+                currentId++
+            }
+        })
+
+        return returnArray
+    }
+
+    function solvePart1(inputArray) {
+        var fwdArray = [...inputArray]
+        var popArray = [...inputArray].filter(x => x != ".")
+        var defragArray = []
+
+        for (var i = 0; i < fwdArray.length; i++) {
+            var tempElm = fwdArray[i]
+            if (popArray.length) {
+                if (tempElm == ".") {
+                    defragArray.push(popArray.pop())
+                }
+                if (tempElm != ".") {
+                    defragArray.push(tempElm)
+                    popArray.shift()
+                }
+            }
+            else {
+                defragArray.push(".")
+            }
+        }
+
+        return defragArray.map((x, i) => [x, i]).filter(x => x[0] != ".").map(x => x[0] * x[1]).reduce((a, b) => a + b, 0)
+
+    }
+
+    function solvePart2(inputArray) {
+    }
+
+    function solve() {
+        var parsedInput = parseInput(inputElm.value.trim())
+
+        result0Elm.value = solvePart1(parsedInput)
+        result1Elm.value = "Calculating..."
+
+        // don't block the repaint!
+        function part2wrapper() {
+            result1Elm.value = solvePart2(parsedInput)
+        }
+
+        setTimeout(part2wrapper, 0)
+    }
+
+    function clearInputAndResults() {
+
+    }
+
+    // globals
+    const inputElm = document.getElementById("puzzleInput")
+    const result0Elm = document.getElementById("result0")
+    const result1Elm = document.getElementById("result1")
+    var globalParsedInput
+    var globalParsedInputText
+
+    function init() {
+        // clearInputAndResults();
+    }
+
+    init();
+</script>
+
+</html>
