@@ -50,19 +50,17 @@
     }
 
     function solvePart1(inputArray) {
-        var fwdArray = [...inputArray]
         var popArray = [...inputArray].filter(x => x != ".")
         var defragArray = []
 
-        for (var i = 0; i < fwdArray.length; i++) {
-            var tempElm = fwdArray[i]
+        for (var i = 0; i < inputArray.length; i++) {
+            var tempElm = inputArray[i]
             if (popArray.length) {
                 if (tempElm == ".") {
                     defragArray.push(popArray.pop())
                 }
-                if (tempElm != ".") {
-                    defragArray.push(tempElm)
-                    popArray.shift()
+                else {
+                    defragArray.push(popArray.shift())
                 }
             }
             else {
@@ -71,7 +69,6 @@
         }
 
         return defragArray.map((x, i) => [x, i]).filter(x => x[0] != ".").map(x => x[0] * x[1]).reduce((a, b) => a + b, 0)
-
     }
 
     function solvePart2(inputArray) {
