@@ -49,6 +49,28 @@
         return returnArray
     }
 
+    function parseInputPt2(inputStr) {
+        var returnArrayItems = []
+        var returnArraySpaces = []
+        var currentId = 0
+
+        inputStr.split("").forEach((x, i) => {
+            if (i % 2) {
+                // free space
+                if (parseInt(x)) {
+                    returnArraySpaces.push(parseInt(x))
+                }
+            }
+            else {
+                // a file
+                returnArrayItems.push([currentId, parseInt(x)])
+                currentId++
+            }
+        })
+
+        return [returnArrayItems, returnArraySpaces]
+    }
+
     function solvePart1(inputArray) {
         var popArray = [...inputArray].filter(x => x != ".")
         var defragArray = []
@@ -71,18 +93,127 @@
         return defragArray.map((x, i) => [x, i]).filter(x => x[0] != ".").map(x => x[0] * x[1]).reduce((a, b) => a + b, 0)
     }
 
-    function solvePart2(inputArray) {
+    function moveThing(inputArray, thingToMove) {
+        var [thingId, thingSize] = thingToMove
+
+        var invalidIdxArray = [...inputArray].map((x, i) => [x, i]).filter(x => x[0] == thingId).map(x => x[1])
+        var returnArray = [...inputArray]
+        returnArray = returnArray.map(x => x == thingId ? "." : x)
+
+        for (var i = 0; i < returnArray.length; i++) {
+            // make sure the index doesn't overlap with the current position
+            // i.e. you can't shift a 3 block file left by 1 block
+            var idxsToCheck = range(i, i + thingSize)
+
+            if (idxsToCheck.some(x => invalidIdxArray.includes(x))) {
+                continue
+            }
+
+            // we can also never move right
+            if (idxsToCheck.some(x => x > invalidIdxArray[0])){
+                return inputArray
+            }
+
+            var tempSlice = returnArray.slice(i, i + thingSize)
+            var filterTempSlice = tempSlice.filter(x => x == ".")
+
+            if (filterTempSlice.length == thingSize) {
+                returnArray.splice(i, thingSize, ...Array(thingSize).fill(thingId))
+                return returnArray
+            }
+        }
+
+        console.warn("unreachable?")
+    }
+
+    function range(start, stop, step) {
+        // https://stackoverflow.com/a/8273091
+        if (typeof stop == 'undefined') {
+            // one param defined
+            stop = start;
+            start = 0;
+        }
+
+        if (typeof step == 'undefined') {
+            step = 1;
+        }
+
+        if ((step > 0 && start >= stop) || (step < 0 && start <= stop)) {
+            return [];
+        }
+
+        var result = [];
+        for (var i = start; step > 0 ? i < stop : i > stop; i += step) {
+            result.push(i);
+        }
+
+        return result;
+    };
+
+    function solvePart2(inputArray0, inputArray1) {
+        // // you only need to know the position of spaces
+        // // and the items in reverse order
+        // // an item can never move right
+        // // it can only move either left, or stay in the same place
+        // // i.e. you never move into a gap left by something else
+        // // because those gaps are always to the right of your starting point
+        // var [items, spaces] = inputArray
+
+        // console.log(items)
+        // console.log(spaces)
+
+        // // I think we can then just blank out the IDs that moved from the main array
+        // // and fill in the spaces using the new filled spaces array
+
+        var inputArray = [...inputArray0]
+        var itemsArray = [...inputArray1[0]]
+        var spacesArray = [...inputArray1[1]]
+        var moveArray = []
+
+        while (itemsArray.length) {
+            var [tempElmId, tempElmSize] = itemsArray.pop()
+
+            for (var i = 0; i < spacesArray.length; i++) {
+                var tempSpacesElm = spacesArray[i]
+                if (tempSpacesElm == tempElmSize) {
+                    moveArray.push([tempElmId, tempElmSize])
+                    spacesArray[i] = 0
+                    break
+                }
+                else if (tempSpacesElm > tempElmSize) {
+                    moveArray.push([tempElmId, tempElmSize])
+                    spacesArray[i] = tempSpacesElm - tempElmSize
+                    break
+                }
+                else {
+                    continue
+                }
+            }
+        }
+
+        // console.log(moveArray)
+        var returnArray = [...inputArray]
+        // console.log(returnArray)
+        for (var ma of moveArray) {
+            // document.body.innerHTML += returnArray.join("") + "<br>"
+            returnArray = moveThing(returnArray, ma)
+        }
+
+        // console.log(returnArray.join(""))
+
+        return returnArray.map((x, i) => [x, i]).filter(x => x[0] != ".").map(x => x[0] * x[1]).reduce((a, b) => a + b, 0)
     }
 
     function solve() {
-        var parsedInput = parseInput(inputElm.value.trim())
+        const parsedInput = parseInput(inputElm.value.trim())
+        const parsedInput2 = parseInputPt2(inputElm.value.trim())
 
         result0Elm.value = solvePart1(parsedInput)
         result1Elm.value = "Calculating..."
 
         // don't block the repaint!
         function part2wrapper() {
-            result1Elm.value = solvePart2(parsedInput)
+            result1Elm.value = solvePart2(parsedInput, parsedInput2)
         }
 
         setTimeout(part2wrapper, 0)
