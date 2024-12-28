@@ -130,80 +130,7 @@
         return neighbours
     }
 
-    // function getValidNeighboursReverse(inputX, inputY) {
-    //     var inputVal = globalParsedInput[inputY][inputX]
-    //     var neighbours = []
-
-    //     if (inputVal == 0) {
-    //         return []
-    //     }
-
-    //     // north
-    //     if (inputY > 0) {
-    //         var tempX = inputX
-    //         var tempY = inputY - 1
-    //         var tempVal = globalParsedInput[tempY][tempX]
-    //         if (tempVal == inputVal - 1) {
-    //             neighbours.push([tempX, tempY])
-    //         }
-    //     }
-
-    //     // south
-    //     if (inputY < inputDimensions.y - 1) {
-    //         var tempX = inputX
-    //         var tempY = inputY + 1
-    //         var tempVal = globalParsedInput[tempY][tempX]
-    //         if (tempVal == inputVal - 1) {
-    //             neighbours.push([tempX, tempY])
-    //         }
-    //     }
-
-    //     // east
-    //     if (inputX < inputDimensions.x - 1) {
-    //         var tempX = inputX + 1
-    //         var tempY = inputY
-    //         var tempVal = globalParsedInput[tempY][tempX]
-    //         if (tempVal == inputVal - 1) {
-    //             neighbours.push([tempX, tempY])
-    //         }
-    //     }
-
-    //     // west
-    //     if (inputX > 0) {
-    //         var tempX = inputX - 1
-    //         var tempY = inputY
-    //         var tempVal = globalParsedInput[tempY][tempX]
-    //         if (tempVal == inputVal - 1) {
-    //             neighbours.push([tempX, tempY])
-    //         }
-    //     }
-
-    //     return neighbours
-    // }
-
-
-    // function recursivelyGetValidNeighbours(inputX, inputY, neighboursArray){
-    //     if (!neighboursArray){
-    //         neighboursArray = [[inputX, inputY]]
-    //     }
-
-    //     if (neighboursArray.length){
-    //         neighboursArray.map(x => getValidNeighbours(...x))
-    //     }
-    // }
-
     function deeThree(data) {
-        // var data = {
-        //     "nodes": [
-        //         { id: "test" },
-        //         { id: "test2" },
-        //         { id: "test3" }
-        //     ],
-        //     "links": [
-        //         { source: "test", target: "test2" }
-        //     ]
-        // }
-
         function chart() {
             // Specify the dimensions of the chart.
             const width = 928;
@@ -316,7 +243,7 @@
         })
 
         deeThree(d3data)
-        
+
 
         return (new Set(pt1res.map(x => JSON.stringify(x)))).size
     }
@@ -350,8 +277,8 @@
     }
 
 
-    function solvePart2(inputArray,) {
-
+    function solvePart2(inputArray) {
+        return pt1res.map(x => JSON.stringify(x)).length
     }
 
     function solve() {
