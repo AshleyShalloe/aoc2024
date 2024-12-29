@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="../res/main.css">
+    <script type="text/javascript" src="../res/main.js"></script>
+    <title>Advent of Code // Day 11</title>
+    <link rel="icon" href="../favicon.png" />
+</head>
+
+<body>
+
+    <h2>Puzzle input</h2>
+    <textarea id="puzzleInput"></textarea>
+    <br><button onclick="solve()">Solve</button>
+
+    <h2>Part 1 Result</h2>
+    <input id="result0" />
+
+    <h2>Part 2 Result</h2>
+    <input id="result1" />
+
+</body>
+<script>
+    'use strict'
+
+    function parseInput(inputStr) {
+        globalParsedInput = inputStr.split(" ").map(x => parseInt(x))
+
+        return globalParsedInput
+    }
+
+    function getNumberOfDigits(inputNumber) {
+        return Math.floor(Math.log10(inputNumber)) + 1
+    }
+
+    function attemptRules(inputVal) {
+        if (inputVal == 0) {
+            return 1
+        }
+
+        if (!(getNumberOfDigits(inputVal) % 2)) {
+            var inputValStr = inputVal.toString()
+            var leftStr = inputValStr.slice(0, inputValStr.length / 2)
+            var rightStr = inputValStr.slice(inputValStr.length / 2)
+            var returnVal = [leftStr, rightStr].map(x => parseInt(x))
+
+            return returnVal
+        }
+
+        else {
+            return inputVal * 2024
+        }
+    }
+
+    function iterateArray(inputArray) {
+        return inputArray.map(x => attemptRules(x)).flat()
+    }
+
+    function iterateArrayNTimes(inputArray, numberOfTimes) {
+        var returnArray = [...inputArray]
+
+        for (var i = 0; i < numberOfTimes; i++) {
+            // console.log("interation", i, "array len:", returnArray.length)
+            returnArray = iterateArray(returnArray)
+        }
+
+        return returnArray
+    }
+
+    function recurseArray(inputArray, countDown) {
+        if (countDown) {
+            // console.log(countDown)
+            return recurseArray(iterateArray(inputArray), countDown - 1)
+        }
+        else {
+            return inputArray
+        }
+    }
+
+
+    function solvePart1(inputArray) {
+        // return iterateArrayNTimes(inputArray, 25).length
+        return recurseArray(inputArray, 25).length
+    }
+
+    function solvePart2(inputArray) {
+        // return iterateArrayNTimes(inputArray, 40).length
+        // return recurseArray(inputArray, 40).length
+    }
+
+    function solve() {
+        const parsedInput = parseInput(inputElm.value.trim())
+
+        result0Elm.value = solvePart1(parsedInput)
+        result1Elm.value = "Calculating..."
+
+        // don't block the repaint!
+        function part2wrapper() {
+            result1Elm.value = solvePart2(parsedInput)
+        }
+
+        setTimeout(part2wrapper, 0)
+    }
+
+    function clearInputAndResults() {
+
+    }
+
+    // globals
+    const inputElm = document.getElementById("puzzleInput")
+    const result0Elm = document.getElementById("result0")
+    const result1Elm = document.getElementById("result1")
+    var globalParsedInput
+    var globalParsedInputText
+
+    function init() {
+        // clearInputAndResults();
+    }
+
+    init();
+</script>
+
+</html>
